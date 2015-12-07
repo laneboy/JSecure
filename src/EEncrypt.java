@@ -298,6 +298,26 @@ public class EEncrypt extends JPanel{
 					e.printStackTrace();
 				}
 			}
+			else if(r3.isSelected()){
+				File f = new File("downloadedfile.temp");
+				//TODO download file
+				char[] key = profiles.get(cb.getSelectedIndex()).key;
+				long tempsize = f.length();
+				if(tempsize%16!=0){
+					tempsize = (tempsize + (16-tempsize%16))/16;
+				}
+				else{
+					tempsize = tempsize/16;
+				}
+				double piece = (100.0/tempsize);
+				try {
+					char[] enk = EAES.AES_ENC(EE.ReadFileToCharArray(t1.getText()),key,0,w2,piece);
+					EE.WriteCharToFile(t3.getText(),enk);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			
 		}
 	}

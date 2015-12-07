@@ -3,6 +3,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -36,10 +38,15 @@ public class EDecrypt extends JPanel{
 	CardLayout cards = new CardLayout();
 	JPanel p1 = new JPanel();
 	JPanel p2 = new JPanel();
+	InnerCard ic = new InnerCard(p1);
 	JProgressBar w2 = new JProgressBar();
 	ArrayList<EProfile> profiles;
 	public EDecrypt(ArrayList<EProfile> profiles){
 		this.profiles = profiles;
+		b1.addActionListener(new chooseFile(t1));
+		b3.addActionListener(new chooseFile(t3,true));
+		b4.addActionListener(new cStartDecryption());
+		b4.setEnabled(false);
 		r3.addItemListener(new Selector(0));
 		r4.addItemListener(new Selector(1));
 		spring.putConstraint(SpringLayout.WEST,l1,24,SpringLayout.NORTH,this);
@@ -74,7 +81,7 @@ public class EDecrypt extends JPanel{
 		g2.add(r4);
 		p1.setLayout(cards);
 		p1.add(cb,"CB");
-		p1.add(new InnerCard(p1),"IC");
+		p1.add(ic,"IC");
 		p1.add(p2,"BP");
 		//p1.setBorder(BorderFactory.createTitledBorder("-"));
 		cards.show(p1, "IC");//TODO when done switch to BP
@@ -121,6 +128,7 @@ public class EDecrypt extends JPanel{
 		SpringLayout spring = new SpringLayout();
 		public InnerCard(JPanel ref){
 			this.setLayout(spring);
+			b1.addActionListener(new chooseFile(t1));
 			spring.putConstraint(SpringLayout.NORTH,l1,4,SpringLayout.NORTH,this);
 			add(l1);
 			spring.putConstraint(SpringLayout.NORTH,t1,0,SpringLayout.NORTH,this);
@@ -131,72 +139,118 @@ public class EDecrypt extends JPanel{
 			spring.putConstraint(SpringLayout.NORTH,b1,0,SpringLayout.NORTH,t1);
 			spring.putConstraint(SpringLayout.EAST,b1,0,SpringLayout.EAST,this);
 			add(b1);
-			
+
 		}
 	}
 	public class Selector implements ItemListener{
 		int index = 0;
-	public Selector(int index){
-		this.index = index;
+		public Selector(int index){
+			this.index = index;
+		}
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				switch(index){
+				case 0:
+					cards.show(p1, "CB");
+					break;
+				case 1:
+					cards.show(p1, "IC");
+					break;
+				}
+			}
+			//else if (e.getStateChange() == ItemEvent.DESELECTED) {
+			// Your deselected code here.
+			//}
+			CheckIsReady();
+		}
+
 	}
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-	    if (e.getStateChange() == ItemEvent.SELECTED) {
-	        switch(index){
-	        case 0:
-	        	cards.show(p1, "CB");
-	        	break;
-	        case 1:
-	        	cards.show(p1, "IC");
-	        	break;
-	        }
-	    }
-	    //else if (e.getStateChange() == ItemEvent.DESELECTED) {
-	        // Your deselected code here.
-	    //}
-	    CheckIsReady();
+	public class chooseFile implements ActionListener{
+		JTextField t = null;
+		boolean save = false;
+		public chooseFile(JTextField toUpdate){
+			t = toUpdate;
+		}
+		public chooseFile(JTextField toUpdate,boolean save){
+			t = toUpdate;
+			this.save = save;
+		}
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			JFileChooser chooser = new JFileChooser();
+			if(!save){
+				int returnVal = chooser.showOpenDialog(EDecrypt.this);
+				if(returnVal == JFileChooser.APPROVE_OPTION) {
+					t.setText(chooser.getSelectedFile().getAbsolutePath());
+				}
+			}
+			else{
+				int returnVal = chooser.showSaveDialog(EDecrypt.this);
+				if(returnVal == JFileChooser.APPROVE_OPTION) {
+					t.setText(chooser.getSelectedFile().getAbsolutePath());
+				}
+			}
+			CheckIsReady();
+		}
+
 	}
-	
-}
-public class chooseFile implements ActionListener{
-	JTextField t = null;
-	boolean save = false;
-	public chooseFile(JTextField toUpdate){
-		t = toUpdate;
+	public void CheckIsReady(){//TODO enable encryption method
+		if(r3.isSelected() && !t1.getText().equalsIgnoreCase("") && !t3.getText().equalsIgnoreCase("") && cb.getSelectedIndex()!=-1){
+			b4.setEnabled(true);
+		}
+		else if(r4.isSelected() && !t1.getText().equalsIgnoreCase("") && !ic.t1.getText().equalsIgnoreCase("") && !t3.getText().equalsIgnoreCase("")){
+			b4.setEnabled(true);
+		}
+		else{
+			b4.setEnabled(false);
+		}
 	}
-	public chooseFile(JTextField toUpdate,boolean save){
-		t = toUpdate;
-		this.save = save;
+	public class cStartDecryption implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			System.out.println("did I get here?");
+			if(r3.isSelected()){
+				char[] key = profiles.get(cb.getSelectedIndex()).key;
+				File f = new File(t1.getText());
+				long tempsize = f.length();
+				if(tempsize%16!=0){
+					tempsize = (tempsize + (16-tempsize%16))/16;
+				}
+				else{
+					tempsize = tempsize/16;
+				}
+				double piece = (100.0/tempsize);
+				try {
+					char[] dec = EAES.AES_DEC(EE.ReadFileToCharArray(t1.getText()),key,0,w2,piece);
+					EE.WriteCharToFile(t3.getText(),dec);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			else if(r4.isSelected()){
+				try {
+					char[] key = EE.ReadFileToCharArray(ic.t1.getText());
+					File f = new File(t1.getText());
+					long tempsize = f.length();
+					if(tempsize%16!=0){
+						tempsize = (tempsize + (16-tempsize%16))/16;
+					}
+					else{
+						tempsize = tempsize/16;
+					}
+					double piece = (100.0/tempsize);
+					char[] dec = EAES.AES_DEC(EE.ReadFileToCharArray(t1.getText()),key,0,w2,piece);
+					EE.WriteCharToFile(t3.getText(),dec);
+					
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		}
 	}
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		JFileChooser chooser = new JFileChooser();
-		 if(!save){
-			 int returnVal = chooser.showOpenDialog(EDecrypt.this);
-			 if(returnVal == JFileChooser.APPROVE_OPTION) {
-			       t.setText(chooser.getSelectedFile().getAbsolutePath());
-			 }
-		 }
-		 else{
-			 int returnVal = chooser.showSaveDialog(EDecrypt.this);
-			 if(returnVal == JFileChooser.APPROVE_OPTION) {
-			       t.setText(chooser.getSelectedFile().getAbsolutePath());
-			 }
-		 }
-		 CheckIsReady();
-	}
-	
-}
-public void CheckIsReady(){//TODO enable encryption method
-	//if(r1.isSelected() && !t1.getText().equalsIgnoreCase("") && r3.isSelected() && cb.getSelectedIndex()!=-1 && !t3.getText().equalsIgnoreCase("")){
-	//	b4.setEnabled(true);
-	//}
-	//else if(r1.isSelected() && !t1.getText().equalsIgnoreCase("") && r4.isSelected() && !ic.t1.getText().equalsIgnoreCase("") && !t3.getText().equalsIgnoreCase("")){
-	//	b4.setEnabled(true);
-	//}
-	//else{
-	//	b4.setEnabled(false);
-	//}
-}
 }
 

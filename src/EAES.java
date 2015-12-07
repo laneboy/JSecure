@@ -408,7 +408,7 @@ public class EAES {
 		}
 		return enck;//TODO
 	}
-	public static char[] AES_DEC_ECB(char[] data, char[] key){
+	public static char[] AES_DEC_ECB(char[] data, char[] key,JProgressBar prog, double piece){
 		int bnum;
 		char[] deck;
 		
@@ -422,6 +422,7 @@ public class EAES {
 		}
 		for(int i=0;i<bnum;i++){
 			setBlock(deck,i,AES_DEC_BLOCK(getBlock(data,i),key));
+			prog.setValue((int)((i+1)*piece));
 		}
 		return deck;//TODO
 	}
@@ -429,6 +430,13 @@ public class EAES {
 		printKey(data);
 		printKey(key);
 		char[] result = AES_ENC_ECB(data,key,prog,piece);
+		printKey(result);
+		return result;
+	}
+	public static char[] AES_DEC(char[] data, char[] key, int mode,JProgressBar prog, double piece){
+		printKey(data);
+		printKey(key);
+		char[] result = AES_DEC_ECB(data,key,prog,piece);
 		printKey(result);
 		return result;
 	}
