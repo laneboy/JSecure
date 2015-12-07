@@ -2,8 +2,12 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -39,6 +43,9 @@ public class EE extends JFrame{
 		        else if(p2.getSelectedIndex()==3){
 		        	((EKeyGen)p7).fillComboBar();
 		        }
+		        else if(p2.getSelectedIndex()==0){
+		        	
+		        }
 		    }
 		});
 		p2.addTab("Main", p4);
@@ -49,7 +56,35 @@ public class EE extends JFrame{
 		p1.add(BorderLayout.SOUTH,p3);
 		p1.add(BorderLayout.CENTER,p2);
 		add(p1);
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.addWindowListener(new java.awt.event.WindowAdapter() {
+		    public void windowClosing(java.awt.event.WindowEvent evt){
+		    	File f = new File("EE.ini");
+		    	if(!f.exists()){
+		    		try {
+						f.createNewFile();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+		    	}
+		    	FileOutputStream fout;
+				try {
+					fout = new FileOutputStream(f.getAbsoluteFile());
+					ObjectOutputStream oos = new ObjectOutputStream(fout);
+			    	oos.writeObject(profiles);
+			    	oos.close();
+			    	fout.close();
+			    	
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		    	
+		    	
+		        System.exit(0);
+		    }
+		});
 		this.setLocationRelativeTo(null);
 		this.setSize(500, 400);
 		this.setMinimumSize(this.getSize());
@@ -60,6 +95,23 @@ public class EE extends JFrame{
 		this.setVisible(true);
 	}
 	public ArrayList<EProfile> loadProfiles(){//check to see if a profile system exist first
+		File f = new File("EE.ini");
+		if(!f.exists()){
+			return new ArrayList<EProfile>();
+		}
+		FileInputStream fin;
+		try {
+			fin = new FileInputStream(f.getAbsoluteFile());
+			ObjectInputStream oos = new ObjectInputStream(fin);
+			ArrayList<EProfile> readdata = (ArrayList<EProfile>)(oos.readObject());
+	    	oos.close();
+	    	fin.close();
+	    	return readdata;
+		} catch (IOException | ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return new ArrayList<EProfile>();
 	}
 	public static char[] ReadFileToCharArray(String filePath) throws IOException {	

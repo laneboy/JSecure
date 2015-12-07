@@ -61,6 +61,7 @@ public class EProfileUI extends JPanel{
 	ArrayList<EProfile> profiles;
 	public EProfileUI(ArrayList<EProfile> profiles){
 		this.profiles = profiles;
+		updateList();
 		this.setLayout(new BorderLayout());
 		b1.addActionListener(new cPlusMin(true));
 		b2.addActionListener(new cPlusMin(false));
@@ -121,6 +122,14 @@ public class EProfileUI extends JPanel{
 		this.add(p2,BorderLayout.WEST);
 		this.add(p7,BorderLayout.CENTER);
 		this.add(p5,BorderLayout.NORTH);
+	}
+	public void updateList() {
+		String[] toUp = new String[profiles.size()];
+		for(int i=0;i<toUp.length;i++){
+			toUp[i] = profiles.get(i).Name;
+		}
+		list.setListData(toUp);
+		
 	}
 	public class cPlusMin implements ActionListener{
 		boolean plus;
