@@ -1,12 +1,17 @@
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -43,7 +48,10 @@ public class EEncrypt extends JPanel{
 	JProgressBar w1 = new JProgressBar();
 	JProgressBar w2 = new JProgressBar();
 	InnerCard ic = new InnerCard(p1);
+	ArrayList<EProfile> profiles;
 	public EEncrypt(ArrayList<EProfile> profiles){
+		this.profiles = profiles;
+		fillComboBar();
 		t1.setEnabled(false);
 		t2.setEnabled(false);
 		b1.setEnabled(false);
@@ -141,6 +149,14 @@ public class EEncrypt extends JPanel{
 		spring.putConstraint(SpringLayout.SOUTH,b4,0,SpringLayout.NORTH,w2);
 
 		add(b4);
+	}
+	public void fillComboBar() {
+		//cb.set
+		String[] profilelist = new String[profiles.size()];
+		for(int i=0;i<profilelist.length;i++){
+			profilelist[i] = profiles.get(i).Name;
+		}
+		cb.setModel(new DefaultComboBoxModel(profilelist));
 	}
 	public class InnerCard extends JPanel{
 		JLabel l1 = new JLabel("Key:");

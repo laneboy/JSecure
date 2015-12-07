@@ -10,6 +10,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Easy Encrypter/Decrypter
 public class EE extends JFrame{
@@ -22,6 +24,13 @@ public class EE extends JFrame{
 	JPanel p6 = new EDecrypt(profiles);//Dec
 	JPanel p7 = new EKeyGen(profiles);//KeyGen
 	public EE() throws IOException{
+		p2.addChangeListener(new ChangeListener() {
+		    public void stateChanged(ChangeEvent e) {
+		        if(p2.getSelectedIndex()==1){
+		        	((EEncrypt)p5).fillComboBar();
+		        }
+		    }
+		});
 		p2.addTab("Main", p4);
 		p2.addTab("Encrypt", p5);
 		p2.addTab("Decrypt", p6);

@@ -1,10 +1,16 @@
 import java.awt.CardLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -31,7 +37,9 @@ public class EDecrypt extends JPanel{
 	JPanel p1 = new JPanel();
 	JPanel p2 = new JPanel();
 	JProgressBar w2 = new JProgressBar();
+	ArrayList<EProfile> profiles;
 	public EDecrypt(ArrayList<EProfile> profiles){
+		this.profiles = profiles;
 		spring.putConstraint(SpringLayout.WEST,l1,24,SpringLayout.NORTH,this);
 		spring.putConstraint(SpringLayout.NORTH,l1,12,SpringLayout.NORTH,this);
 		this.setLayout(spring);
@@ -96,6 +104,14 @@ public class EDecrypt extends JPanel{
 
 		add(b4);
 	}
+	public void fillComboBar() {
+		//cb.set
+		String[] profilelist = new String[profiles.size()];
+		for(int i=0;i<profilelist.length;i++){
+			profilelist[i] = profiles.get(i).Name;
+		}
+		cb.setModel(new DefaultComboBoxModel(profilelist));
+	}
 	public class InnerCard extends JPanel{//pls stop
 		JLabel l1 = new JLabel("Key:");
 		JTextField t1 = new JTextField();
@@ -116,5 +132,77 @@ public class EDecrypt extends JPanel{
 			
 		}
 	}
+	public class Selector implements ItemListener{
+		int index = 0;
+	public Selector(int index){
+		this.index = index;
+	}
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+	    if (e.getStateChange() == ItemEvent.SELECTED) {
+	        switch(index){
+	        case 0:
+	        	t1.setEnabled(true);
+	        	b1.setEnabled(true);
+	        	break;
+	        case 1:
+	        	t1.setEnabled(false);
+	        	b1.setEnabled(false);
+	        	break;
+	        case 2:
+	        	cards.show(p1, "CB");
+	        	break;
+	        case 3:
+	        	cards.show(p1, "IC");
+	        	break;
+	        }
+	    }
+	    //else if (e.getStateChange() == ItemEvent.DESELECTED) {
+	        // Your deselected code here.
+	    //}
+	    CheckIsReady();
+	}
+	
+}
+public class chooseFile implements ActionListener{
+	JTextField t = null;
+	boolean save = false;
+	public chooseFile(JTextField toUpdate){
+		t = toUpdate;
+	}
+	public chooseFile(JTextField toUpdate,boolean save){
+		t = toUpdate;
+		this.save = save;
+	}
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		JFileChooser chooser = new JFileChooser();
+		 if(!save){
+			 int returnVal = chooser.showOpenDialog(EDecrypt.this);
+			 if(returnVal == JFileChooser.APPROVE_OPTION) {
+			       t.setText(chooser.getSelectedFile().getAbsolutePath());
+			 }
+		 }
+		 else{
+			 int returnVal = chooser.showSaveDialog(EDecrypt.this);
+			 if(returnVal == JFileChooser.APPROVE_OPTION) {
+			       t.setText(chooser.getSelectedFile().getAbsolutePath());
+			 }
+		 }
+		 CheckIsReady();
+	}
+	
+}
+public void CheckIsReady(){//TODO enable encryption method
+	//if(r1.isSelected() && !t1.getText().equalsIgnoreCase("") && r3.isSelected() && cb.getSelectedIndex()!=-1 && !t3.getText().equalsIgnoreCase("")){
+	//	b4.setEnabled(true);
+	//}
+	//else if(r1.isSelected() && !t1.getText().equalsIgnoreCase("") && r4.isSelected() && !ic.t1.getText().equalsIgnoreCase("") && !t3.getText().equalsIgnoreCase("")){
+	//	b4.setEnabled(true);
+	//}
+	//else{
+	//	b4.setEnabled(false);
+	//}
+}
 }
 

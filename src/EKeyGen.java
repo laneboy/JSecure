@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -36,7 +37,9 @@ public class EKeyGen extends JPanel{
 	JLabel l3 = new JLabel("Key(In Hex)");
 	SpringLayout spring = new SpringLayout();
 	JScrollPane s1= new JScrollPane(a1);
+	ArrayList<EProfile> profiles;
 	public EKeyGen(ArrayList<EProfile> profiles){
+		this.profiles = profiles;
 		cb.setEnabled(false);
     	t1.setEnabled(false);
     	b1.setEnabled(false);
@@ -87,6 +90,14 @@ public class EKeyGen extends JPanel{
 		add(b2);
 
 		
+	}
+	public void fillComboBar() {
+		//cb.set
+		String[] profilelist = new String[profiles.size()];
+		for(int i=0;i<profilelist.length;i++){
+			profilelist[i] = profiles.get(i).Name;
+		}
+		cb.setModel(new DefaultComboBoxModel(profilelist));
 	}
 	public class chooseFile implements ActionListener{
 		JTextField t = null;
