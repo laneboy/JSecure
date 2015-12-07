@@ -44,7 +44,7 @@ public class EE extends JFrame{
 		        	((EKeyGen)p7).fillComboBar();
 		        }
 		        else if(p2.getSelectedIndex()==0){
-		        	
+		        	((EProfileUI)p4).updateList();
 		        }
 		    }
 		});

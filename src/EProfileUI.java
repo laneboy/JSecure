@@ -59,6 +59,7 @@ public class EProfileUI extends JPanel{
 	JList list = new JList(items);
 	JScrollPane s2 = new JScrollPane(list);
 	ArrayList<EProfile> profiles;
+	ImageIcon defualt;
 	public EProfileUI(ArrayList<EProfile> profiles){
 		this.profiles = profiles;
 		updateList();
@@ -75,8 +76,8 @@ public class EProfileUI extends JPanel{
 			//File f = new File("default.png");
 			URL imgurl = this.getClass().getResource("default.png");
 			Image g = ImageIO.read(imgurl);
-			ImageIcon icon = new ImageIcon(g);
-	        l1 = new JLabel(icon);
+			defualt = new ImageIcon(g);
+	        l1 = new JLabel(defualt);
 	        //l1.setText("Here");
 		} catch (IOException e) {
 			System.out.println("IO ERROR");
@@ -139,7 +140,7 @@ public class EProfileUI extends JPanel{
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			if(plus){
-				list.setListData(extendList());
+				extendList();
 			}
 			else{
 				strinkList(list.getSelectedIndex());
@@ -147,43 +148,20 @@ public class EProfileUI extends JPanel{
 		}
 		
 	}
-	public String[] extendList(){
-		if(items==null){
-			String[] toRet = new String[1];
-			toRet[0]="Empty Slot";
-			items = toRet;
-			profiles.add(new EProfile());
-			return toRet;
-		}
-		if(items[0].equals("")){
-			String[] toRet = new String[1];
-			toRet[0]="Empty Slot";
-			items = toRet;
-			profiles.add(new EProfile());
-			return toRet;
-		}
-		String[] toRet = new String[items.length+1];
-		for(int i=0;i<items.length;i++){
-			toRet[i] = items[i];
-		}
-		toRet[items.length]="Empty Slot";
+	public void extendList(){
 		profiles.add(new EProfile());
-		items = toRet;
-		return toRet;
+		updateList();
 	}
 	public void strinkList(int spot){
-		System.out.println(items.length);
-		if(items == null){
-			return;
-		}
-		if(items.length-1==0){
+		if(profiles.size()==1){
 			return;
 		}
 		if(spot==-1){
-			spot = items.length-1;
+			spot = profiles.size()-1;
 		}
 		profiles.remove(spot);
-		refreshList();
+		//refreshList();
+		updateList();
 	}
 	public class cRefresh implements ListSelectionListener{
 		@Override
@@ -195,6 +173,12 @@ public class EProfileUI extends JPanel{
 				current = profiles.get(list.getSelectedIndex());
 				t1.setText(current.Name);
 				a1.setText(EAES.stringKey(current.key));
+				if(current.defaultImage){
+					l1.setIcon(defualt);
+				}
+				else{
+					l1.setIcon(current.g);
+				}
 			}
 		}
 	}
@@ -226,10 +210,23 @@ public class EProfileUI extends JPanel{
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			JFileChooser chooser = new JFileChooser();
-			 if(!save){
+			 if(!save){//its an open
 				 int returnVal = chooser.showOpenDialog(EProfileUI.this);
 				 if(returnVal == JFileChooser.APPROVE_OPTION) {
 					 
+					 try {
+						URL imgurl = chooser.getSelectedFile().toURL();
+						Image g = ImageIO.read(imgurl);
+						Image sg = g.getScaledInstance(132, 132, Image.SCALE_SMOOTH);
+						EProfile temp = profiles.get(list.getSelectedIndex());
+						ImageIcon icon = new ImageIcon(sg);
+						temp.g = icon;
+						temp.defaultImage = false;
+				        l1.setIcon(icon);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				 }
 			 }
 			 else{
