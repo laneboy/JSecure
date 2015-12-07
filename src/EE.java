@@ -1,8 +1,12 @@
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -29,6 +33,12 @@ public class EE extends JFrame{
 		        if(p2.getSelectedIndex()==1){
 		        	((EEncrypt)p5).fillComboBar();
 		        }
+		        else if(p2.getSelectedIndex()==2){
+		        	((EDecrypt)p6).fillComboBar();
+		        }
+		        else if(p2.getSelectedIndex()==3){
+		        	((EKeyGen)p7).fillComboBar();
+		        }
 		    }
 		});
 		p2.addTab("Main", p4);
@@ -51,6 +61,31 @@ public class EE extends JFrame{
 	}
 	public ArrayList<EProfile> loadProfiles(){//check to see if a profile system exist first
 		return new ArrayList<EProfile>();
+	}
+	public static char[] ReadFileToCharArray(String filePath) throws IOException {	
+		char[] toRet = new char[(int) (new File(filePath)).length()];
+		byte[] data = Files.readAllBytes(Paths.get(filePath));
+		for(int i=0;i<toRet.length;i++){
+			if(data[i]<0){
+				toRet[i] = (char)(256+data[i]);
+			}
+			else{
+				toRet[i] = (char) data[i];
+			}
+		}
+		return  toRet;	
+	}
+	public static void WriteCharToFile(String path,char[] data) throws IOException{
+		File f = new File(path);
+		if(!f.exists()){
+			f.createNewFile();
+		}
+		FileOutputStream fos = new FileOutputStream(path);
+		System.out.println(data.length);
+		for(int i=0;i<data.length;i++){
+			fos.write(data[i]);
+		}
+	    fos.close();
 	}
 	public static void main(String[] args){
 		try {

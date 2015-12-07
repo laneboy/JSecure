@@ -1,5 +1,7 @@
 import java.security.SecureRandom;
 
+import javax.swing.JProgressBar;
+
 
 public class EAES {
 	public static char[][] S_BLOCK = {
@@ -388,7 +390,7 @@ public class EAES {
 			data[i] = newdata[i%16];
 		}
 	}
-	public static char[] AES_ENC_ECB(char[] data, char[] key){
+	public static char[] AES_ENC_ECB(char[] data, char[] key,JProgressBar prog, double piece){
 		int bnum;
 		char[] enck;
 		if(data.length%16==0){
@@ -402,6 +404,7 @@ public class EAES {
 		}
 		for(int i=0;i<bnum;i++){
 			setBlock(enck,i,AES_ENC_BLOCK(getBlock(data,i),key));
+			prog.setValue((int)((i+1)*piece));
 		}
 		return enck;//TODO
 	}
@@ -422,8 +425,12 @@ public class EAES {
 		}
 		return deck;//TODO
 	}
-	public static char[] AES_ENC(char[] data, char[] key, int mode){
-		return null;//TODO
+	public static char[] AES_ENC(char[] data, char[] key, int mode,JProgressBar prog, double piece){
+		printKey(data);
+		printKey(key);
+		char[] result = AES_ENC_ECB(data,key,prog,piece);
+		printKey(result);
+		return result;
 	}
 	public static char[] GEN_KEY(){
 		SecureRandom random = new SecureRandom();
@@ -461,6 +468,7 @@ public class EAES {
 		toRet+="\n";
 		return toRet;
 	}
+	/*
 	public static void main(String[] args) {
 		char[] data = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O',0x00};
 		char[] data2= {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','A','B','C','D','E','F','G','H','I','J','K','L','M'};
@@ -468,6 +476,6 @@ public class EAES {
 		printKey(AES_DEC_ECB(AES_ENC_ECB(data,key),key));
 		printKey(AES_DEC_ECB(AES_ENC_ECB(data2,key),key));
 		printKey(GEN_KEY());
-	}
+	}*/
 
 }

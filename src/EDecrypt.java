@@ -40,6 +40,8 @@ public class EDecrypt extends JPanel{
 	ArrayList<EProfile> profiles;
 	public EDecrypt(ArrayList<EProfile> profiles){
 		this.profiles = profiles;
+		r3.addItemListener(new Selector(0));
+		r4.addItemListener(new Selector(1));
 		spring.putConstraint(SpringLayout.WEST,l1,24,SpringLayout.NORTH,this);
 		spring.putConstraint(SpringLayout.NORTH,l1,12,SpringLayout.NORTH,this);
 		this.setLayout(spring);
@@ -142,17 +144,9 @@ public class EDecrypt extends JPanel{
 	    if (e.getStateChange() == ItemEvent.SELECTED) {
 	        switch(index){
 	        case 0:
-	        	t1.setEnabled(true);
-	        	b1.setEnabled(true);
-	        	break;
-	        case 1:
-	        	t1.setEnabled(false);
-	        	b1.setEnabled(false);
-	        	break;
-	        case 2:
 	        	cards.show(p1, "CB");
 	        	break;
-	        case 3:
+	        case 1:
 	        	cards.show(p1, "IC");
 	        	break;
 	        }

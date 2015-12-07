@@ -7,6 +7,16 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -63,6 +73,7 @@ public class EEncrypt extends JPanel{
 		r4.addItemListener(new Selector(3));
 		b1.addActionListener(new chooseFile(t1));
 		b3.addActionListener(new chooseFile(t3,true));
+		b4.addActionListener(new cStartEncryption());
 		spring.putConstraint(SpringLayout.WEST,l1,24,SpringLayout.NORTH,this);
 		spring.putConstraint(SpringLayout.NORTH,l1,12,SpringLayout.NORTH,this);
 		this.setLayout(spring);
@@ -243,6 +254,52 @@ public class EEncrypt extends JPanel{
 			 CheckIsReady();
 		}
 		
+	}
+	public class cStartEncryption implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			System.out.println("did I get here?");
+			if(r1.isSelected() && r3.isSelected()){
+				char[] key = profiles.get(cb.getSelectedIndex()).key;
+				File f = new File(t1.getText());
+				long tempsize = f.length();
+				if(tempsize%16!=0){
+					tempsize = (tempsize + (16-tempsize%16))/16;
+				}
+				else{
+					tempsize = tempsize/16;
+				}
+				double piece = (100.0/tempsize);
+				try {
+					char[] enk = EAES.AES_ENC(EE.ReadFileToCharArray(t1.getText()),key,0,w2,piece);
+					EE.WriteCharToFile(t3.getText(),enk);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			else if(r1.isSelected() && r4.isSelected()){
+				try {
+					char[] key = EE.ReadFileToCharArray(ic.t1.getText());
+					File f = new File(t1.getText());
+					long tempsize = f.length();
+					if(tempsize%16!=0){
+						tempsize = (tempsize + (16-tempsize%16))/16;
+					}
+					else{
+						tempsize = tempsize/16;
+					}
+					double piece = (100.0/tempsize);
+					char[] enk = EAES.AES_ENC(EE.ReadFileToCharArray(t1.getText()),key,0,w2,piece);
+					EE.WriteCharToFile(t3.getText(),enk);
+					
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		}
 	}
 	public void CheckIsReady(){//TODO enable encryption method
 		if(r1.isSelected() && !t1.getText().equalsIgnoreCase("") && r3.isSelected() && cb.getSelectedIndex()!=-1 && !t3.getText().equalsIgnoreCase("")){

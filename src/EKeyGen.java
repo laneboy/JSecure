@@ -181,7 +181,8 @@ public class EKeyGen extends JPanel{
 				}
 				
 			}
-			else{//save to the profile system
+			else{
+				profiles.get(cb.getSelectedIndex()).key = key;
 				
 			}
 			a1.setText(EAES.stringKey(key));
